@@ -1,68 +1,94 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
+    <meta charset="UTF-8">
     <title>Upload Panorama Scene</title>
-    <meta charset="utf-8" />
     <style>
         body {
             font-family: sans-serif;
             padding: 20px;
-            background: #f0f0f0;
-        }
-
-        input, select {
-            margin-bottom: 10px;
-            display: block;
-            width: 300px;
-            padding: 5px;
+            background: #f9f9f9;
         }
 
         label {
             font-weight: bold;
         }
+
+        input, button {
+            display: block;
+            width: 300px;
+            margin-bottom: 10px;
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #45a049;
+            }
     </style>
 </head>
 <body>
-    <h1>Upload Scene mới cho krpano</h1>
-    <form method="POST" action="https://api-high.onrender.com/upload" enctype="multipart/form-data">
-        <label>Ảnh panorama (jpg hoặc zip tile):</label>
-        <input type="file" name="image" accept=".jpg,.jpeg,.zip" required />
+    <h1>🖼️ Upload Scene mới cho krpano</h1>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label>Ảnh panorama (.jpg hoặc .zip tile):</label>
+        <input type="file" name="image" accept=".jpg,.jpeg,.zip" required>
 
         <label>Tên Scene (ví dụ: scene_7):</label>
-        <input type="text" name="sceneName" required />
+        <input type="text" name="sceneName" required>
 
         <label>ath hotspot (góc quay ngang):</label>
-        <input type="number" name="ath" value="0" />
+        <input type="number" name="ath" value="0">
 
         <label>atv hotspot (góc quay dọc):</label>
-        <input type="number" name="atv" value="0" />
+        <input type="number" name="atv" value="0">
 
         <label>Scene khi click hotspot sẽ chuyển đến (linkedscene):</label>
-        <input type="text" name="linkedscene" required />
+        <input type="text" name="linkedscene" required>
 
         <button type="submit">Tải lên và tạo scene</button>
     </form>
+
     <script>
-        const form = document.querySelector('form');
-        form.addEventListener('submit', () => {
-            alert("Đã gửi form!");
+        const form = document.getElementById('uploadForm');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            try {
+                const res = await fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await res.json();
+
+                if (result.success) {
+                    alert("✅ Tải thành công!");
+
+                    // 👉 Tự động gọi reload viewer ở tab gốc
+                    if (window.opener && window.opener.krpano) {
+                        window.opener.krpano.call("loadpano('tour.xml', null, MERGE, BLEND(1));");
+                        if (window.opener.buildSceneMenu) {
+                            window.opener.buildSceneMenu();
+                        }
+                    }
+                } else {
+                    alert("❌ Lỗi upload: " + result.error);
+                }
+            } catch (err) {
+                alert("🚫 Lỗi kết nối: " + err.message);
+            }
         });
-   
-        //document.querySelector('form').addEventListener('submit', (e) => {
-        //    e.preventDefault(); // không cho trình duyệt tự chuyển sang /upload
-
-        //    const formData = new FormData(e.target);
-
-        //    fetch('/upload', {
-        //        method: 'POST',
-        //        body: formData
-        //    })
-        //        .then(res => res.text())
-        //        .then(html => {
-        //            document.body.innerHTML = html; // hiện kết quả từ server
-        //        })
-        //        .catch(err => alert("Gửi form lỗi: " + err));
-        //});
     </script>
 </body>
 </html>
