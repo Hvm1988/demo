@@ -61,14 +61,10 @@
 
                 if (result.success) {
                     alert("Tải thành công!");
-
-                    // Gọi reload từ cửa sổ gốc nếu có
                     if (window.opener && window.opener.krpano) {
                         window.opener.krpano.call("loadpano('tour.xml', null, MERGE, BLEND(1));");
                         window.opener.buildSceneMenu?.();
                     }
-                } else {
-                    alert("Upload lỗi: " + (result.message || "Không rõ nguyên nhân"));
                 }
 
             } catch (err) {
