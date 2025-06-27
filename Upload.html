@@ -1,65 +1,52 @@
 ﻿<!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Upload Panorama Scene</title>
+    <meta charset="utf-8" />
+    <title>Upload Scene mới cho krpano</title>
     <style>
         body {
             font-family: sans-serif;
             padding: 20px;
-            background: #f9f9f9;
+            background: #f0f0f0;
+        }
+
+        input, select {
+            margin-bottom: 10px;
+            display: block;
+            width: 300px;
+            padding: 5px;
         }
 
         label {
             font-weight: bold;
         }
-
-        input, button {
-            display: block;
-            width: 300px;
-            margin-bottom: 10px;
-            padding: 6px;
-            font-size: 14px;
-        }
-
-        button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-            button:hover {
-                background: #45a049;
-            }
     </style>
 </head>
 <body>
-    <h1>🖼️ Upload Scene mới cho krpano</h1>
-
-    <form id="uploadForm" enctype="multipart/form-data">
-        <label>Ảnh panorama (.jpg hoặc .zip tile):</label>
-        <input type="file" name="image" accept=".jpg,.jpeg,.zip" required>
+    <h1>Upload Scene mới cho krpano</h1>
+    <form id="uploadForm">
+        <label>Ảnh panorama (jpg hoặc zip tile):</label>
+        <input type="file" name="image" accept=".jpg,.jpeg,.zip" required />
 
         <label>Tên Scene (ví dụ: scene_7):</label>
-        <input type="text" name="sceneName" required>
+        <input type="text" name="sceneName" required />
 
         <label>ath hotspot (góc quay ngang):</label>
-        <input type="number" name="ath" value="0">
+        <input type="number" name="ath" value="0" />
 
         <label>atv hotspot (góc quay dọc):</label>
-        <input type="number" name="atv" value="0">
+        <input type="number" name="atv" value="0" />
 
         <label>Scene khi click hotspot sẽ chuyển đến (linkedscene):</label>
-        <input type="text" name="linkedscene" required>
+        <input type="text" name="linkedscene" required />
 
         <button type="submit">Tải lên và tạo scene</button>
     </form>
 
     <script>
-        const form = document.getElementById('uploadForm');
+        const form = document.getElementById("uploadForm");
 
-        form.addEventListener('submit', async (e) => {
+        form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
             const formData = new FormData(form);
@@ -70,30 +57,22 @@
                     body: formData
                 });
 
-                const text = await res.text();
-                let result;
+                const result = await res.json();
 
-                try {
-                    result = JSON.parse(text);
-                } catch (err) {
-                    alert("❌ Server không trả về JSON hợp lệ:\n" + text);
-                    return;
-                }
                 if (result.success) {
-                    alert("✅ Tải thành công!");
+                    alert("Tải thành công!");
 
-                    // 👉 Tự động gọi reload viewer ở tab gốc
+                    // Gọi reload từ cửa sổ gốc nếu có
                     if (window.opener && window.opener.krpano) {
                         window.opener.krpano.call("loadpano('tour.xml', null, MERGE, BLEND(1));");
-                        if (window.opener.buildSceneMenu) {
-                            window.opener.buildSceneMenu();
-                        }
+                        window.opener.buildSceneMenu?.();
                     }
                 } else {
-                    alert("❌ Lỗi upload: " + result.error);
+                    alert("Upload lỗi: " + (result.message || "Không rõ nguyên nhân"));
                 }
+
             } catch (err) {
-                alert("🚫 Lỗi kết nối: " + err.message);
+                alert("Lỗi kết nối: " + err.message);
             }
         });
     </script>
