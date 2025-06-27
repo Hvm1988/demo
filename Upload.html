@@ -70,8 +70,15 @@
                     body: formData
                 });
 
-                const result = await res.json();
+                const text = await res.text();
+                let result;
 
+                try {
+                    result = JSON.parse(text);
+                } catch (err) {
+                    alert("❌ Server không trả về JSON hợp lệ:\n" + text);
+                    return;
+                }
                 if (result.success) {
                     alert("✅ Tải thành công!");
 
