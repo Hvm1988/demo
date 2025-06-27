@@ -25,50 +25,45 @@
 <body>
     <h1>Upload Scene mới cho krpano</h1>
     <form id="uploadForm">
-        <label>Ảnh panorama (jpg hoặc zip tile):</label>
-        <input type="file" name="image" accept=".jpg,.jpeg,.zip" required />
+        <label>Ảnh panorama (.jpg):</label>
+        <input type="file" name="image" accept=".jpg,.jpeg" required />
 
-        <label>Tên Scene (ví dụ: scene_7):</label>
+        <label>Tên Scene (vd: scene_7):</label>
         <input type="text" name="sceneName" required />
 
-        <label>ath hotspot (góc quay ngang):</label>
+        <label>ath hotspot (góc ngang):</label>
         <input type="number" name="ath" value="0" />
 
-        <label>atv hotspot (góc quay dọc):</label>
+        <label>atv hotspot (góc dọc):</label>
         <input type="number" name="atv" value="0" />
 
-        <label>Scene khi click hotspot sẽ chuyển đến (linkedscene):</label>
+        <label>Scene sẽ chuyển đến khi click hotspot:</label>
         <input type="text" name="linkedscene" required />
 
         <button type="submit">Tải lên và tạo scene</button>
     </form>
 
     <script>
-        const form = document.getElementById("uploadForm");
-
-        form.addEventListener("submit", async (e) => {
+        document.getElementById("uploadForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-
-            const formData = new FormData(form);
-
+            const formData = new FormData(e.target);
             try {
-                const res = await fetch("https://api-high-3.onrender.com/upload", {
+                const res = await fetch("http://localhost:3000/upload", {
                     method: "POST",
                     body: formData
                 });
-
                 const result = await res.json();
-
                 if (result.success) {
-                    alert("Tải thành công!");
-                    if (window.opener && window.opener.krpano) {
+                    alert("✔ Upload thành công!");
+                    if (window.opener?.krpano) {
                         window.opener.krpano.call("loadpano('tour.xml', null, MERGE, BLEND(1));");
                         window.opener.buildSceneMenu?.();
                     }
+                } else {
+                    alert("❌ Lỗi: " + result.error);
                 }
-
             } catch (err) {
-                alert("Lỗi kết nối: " + err.message);
+                alert("🚫 Kết nối thất bại: " + err.message);
             }
         });
     </script>
